@@ -1,5 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                                                 //
+//  https://shell.azure.com                                                                                                        //
+//                                                                                                                                 //
 //  Deployment Commands:                                                                                                           //
 //  az group create --location <location> --name <resourceGroupName>                                                               //
 //  az deployment group create --name <deploymentName> --resource-group <resourceGroupName> --template-file main.bicep             //

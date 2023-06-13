@@ -57,7 +57,7 @@ do
 done
 systemctl start docker.service
 systemctl enable docker.service
-#Wait for Internet access through the FGT by testing the docker regsitry
+# Wait for Internet access through the FGT by testing the docker registry
 echo "Waiting for docker registry to be reacheable"
 curl --retry 20 -s -o /dev/null "https://index.docker.io/v2/"
 echo "installing dvwa docker container"
