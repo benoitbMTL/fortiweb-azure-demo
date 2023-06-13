@@ -49,14 +49,12 @@ var fwbCustomDataCombined = {
   'cloud-initd' : 'enable'
   'usr-cli': fwbCustomDataBody
   }
+var var_fwbVmName = '${deploymentPrefix}-FWB'
 var fwbCustomDataPreconfig = '${fwbCustomDataVIP}${fwbServerPool}${letsEncrypt}${bulkPoCConfig}'
 var fwbCustomDataVIP = '\nconfig system vip\n edit "DVWA_VIP"\n set vip ${reference(publicIPId).ipAddress}/32\n set interface port1\n next\n end\n'
-var fwbStaticRoute = '\nconfig router static\n edit 1\n set dst ${vnetAddressPrefix}\n set gateway ${sn2GatewayIP}\n set device port2\n next\n end\n'
-var fwbServerPool = '\nconfig server-policy server-pool\n edit "DVWA_POOL"\n config pserver-list\n edit 1\n set ip ${subnet7StartAddress}\n next\n end\n next\n end\n'
+var fwbServerPool = '\nconfig server-policy server-pool\n edit "DVWA_POOL"\n config pserver-list\n edit 1\n set ip ${subnet1StartAddress}\n next\n end\n next\n end\n'
 var letsEncrypt = '\nconfig system certificate letsencrypt\nedit "DVWA_LE_CERTIFICATE"\nset domain ${deploymentPrefix}.${location}.cloudapp.azure.com\nset validation-method TLS-ALPN\nnext\nend\n'
-var wvsProfile = '\nconfig wvs profile\nedit "DVWASCANPROFILE"\nset scan-target https://${sn1IPfwb}\nset scan-template "OWASP Top 10"\nset custom-header0 "Cookie: security=low; PHPSESSID=XXXXXXXXXXXXXXXXXXXX"\nset form-based-authentication enable\nset form-based-username pablo\nset form-based-password letmein\nset form-based-auth-url https://${sn1IPfwb}/login.php\nset username-field username\nset password-field password\nset session-check-url https://10.0.5.5/index.php\nset session-check-string Welcome\nset data-format %u=%U&%p=%P\nnext\nend\n'
-var bulkPoCConfig = loadTextContent('005-fortiwebCustomData.txt')
-
+var bulkPoCConfig = loadTextContent('004-fortiwebConfig.txt')
 var fwbCustomData = base64(string(fwbCustomDataCombined))
 var var_fwbNic1Name = '${var_fwbVmName}-Nic1'
 var fwbNic1Id = fwbNic1Name.id
@@ -65,39 +63,19 @@ var fwbNic2Id = fwbNic2Name.id
 var var_serialConsoleStorageAccountName = 'fwbsc${uniqueString(resourceGroup().id)}'
 var serialConsoleStorageAccountType = 'Standard_LRS'
 var serialConsoleEnabled = ((fwbserialConsole == 'yes') ? true : false)
-var var_publicIPName = ((publicIPName == '') ? '${deploymentPrefix}-FWB-PIP' : publicIPName)
+var var_publicIPName = ((publicIPName == '') ? '${deploymentPrefix}-FWB-PublicIP' : publicIPName)
 var publicIPId = ((publicIPNewOrExistingOrNone == 'new') ? publicIPName_resource.id : resourceId(publicIPResourceGroup, 'Microsoft.Network/publicIPAddresses', var_publicIPName))
 var publicIPAddressId = {
   id: publicIPId
-}
-var ilbProperties = {
-  properties: {
-    privateIPAddress: sn1IPlb
-    privateIPAllocationMethod: 'Static'
-    subnet: subnet5Id
-  }
-}
-var elbProperties = {
-  properties: {
-    publicIPAddress: publicIPAddressId
-  }
-}
 var var_NSGName = '${deploymentPrefix}-${uniqueString(resourceGroup().id)}-NSG'
 var NSGId = NSGName.id
-var sn1IPArray = split(subnet5Prefix, '.')
+var sn1IPArray = split(subnet1Prefix, '.')
 var sn1IPArray2 = string(int(sn1IPArray[2]))
 var sn1IPArray1 = string(int(sn1IPArray[1]))
 var sn1IPArray0 = string(int(sn1IPArray[0]))
-var sn1IPStartAddress = split(subnet5StartAddress, '.')
+var sn1IPStartAddress = split(subnet1StartAddress, '.')
 var sn1IPfwb = '${sn1IPArray0}.${sn1IPArray1}.${sn1IPArray2}.${int(sn1IPStartAddress[3])}'
-var sn1IPlb = '${sn1IPArray0}.${sn1IPArray1}.${sn1IPArray2}.${(int(sn1IPStartAddress[3]) - 1)}'
-var sn2IPArray = split(subnet6Prefix, '.')
-var sn2IPArray2 = string(int(sn2IPArray[2]))
-var sn2IPArray1 = string(int(sn2IPArray[1]))
-var sn2IPArray0 = string(int(sn2IPArray[0]))
-var sn2IPStartAddress = split(subnet6StartAddress, '.')
-var sn2GatewayIP = '${sn2IPArray0}.${sn2IPArray1}.${sn2IPArray2}.${sn2IPArray3}'
-var sn2IPArray3 = string((int(sn2IPArray2nd[0]) + 1))
+var sn2IPArray2 = string((int(sn2IPArray2nd[0]) + 1))
 var sn2IPArray2nd = split(sn2IPArray2ndString, '/')
 var sn2IPArray2ndString = string(sn2IPArray[3])
 var sn2IPfwb = '${sn2IPArray0}.${sn2IPArray1}.${sn2IPArray2}.${(int(sn2IPStartAddress[3]) + 1)}'
@@ -115,21 +93,6 @@ resource serialConsoleStorageAccountName 'Microsoft.Storage/storageAccounts@2021
   kind: 'Storage'
   sku: {
     name: serialConsoleStorageAccountType
-  }
-}
-
-resource availabilitySetName 'Microsoft.Compute/availabilitySets@2021-07-01' = if (!useAZ) {
-  name: var_availabilitySetName
-  tags: {
-    provider: toUpper(fortinetTags.provider)
-  }
-  location: location
-  properties: {
-    platformFaultDomainCount: 2
-    platformUpdateDomainCount: 2
-  }
-  sku: {
-    name: 'Aligned'
   }
 }
 
