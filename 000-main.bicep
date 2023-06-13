@@ -64,7 +64,7 @@ param deploymentPrefix string
 
 param location string = resourceGroup().location
 
-param fortinetTagsParam object = {
+param fortinetTags object = {
   publisher: 'Fortinet'
   template: 'Canadian Fortinet Architecture Blueprint'
   provider: '6EB3B02F-50E5-4A3E-8CB8-2E12925831AP'
@@ -280,7 +280,7 @@ module networkTemplate '001-network.bicep' = {
   name: 'networkDeployment'
   params: {
     deploymentPrefix: deploymentPrefix
-    fortinetTags: fortinetTagsParam   
+    fortinetTags: fortinetTags   
     location: location
     subnet1Name: subnet1Name
     subnet1Prefix: subnet1Prefix
@@ -302,7 +302,7 @@ module fortiWebTemplate '002-fortiweb.bicep' = if (deployFortiWeb == 'yes') {
     adminPassword: adminPassword
     adminUsername: adminUsername
     deploymentPrefix: deploymentPrefix
-    fortinetTags: fortinetTagsParam
+    fortinetTags: fortinetTags
     fortiWebAdditionalCustomData:fortiWebAdditionalCustomData
     fortiWebImageSKU: fortiWebImageSKU
     fortiWebImageVersion: fortiWebImageVersion
@@ -362,3 +362,9 @@ module dvwaTemplate '003-dvwa.bicep' = if (deployDVWA == 'yes') {
 
 output dvwaHTTP string = 'http://${fortiWebTemplate.outputs.fortiWebPublicIP}:80'
 output fortiWebManagementConsole string = 'https://${fortiWebTemplate.outputs.fortiWebPublicIP}:40030'
+output networkTemplateOutputs object = {
+  value: networkTemplate.outputs
+}
+output fortiWebTemplateOutputs object = {
+  value: fortiWebTemplate.outputs
+}
