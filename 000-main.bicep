@@ -224,6 +224,14 @@ param acceleratedNetworking bool = true
 @description('The ARM template provides a basic configuration. Additional configuration can be added here.')
 param fortiWebAdditionalCustomData string = ''
 
+@description('Public IP for the FortiWeb VM')
+@allowed([
+  'new'
+  'existing'
+  'none'
+])
+param publicIPNewOrExistingOrNone string = 'new'
+
 @description('Name of Public IP address element.')
 param publicIPName string = 'FWBPublicIP'
 
@@ -284,7 +292,6 @@ module networkTemplate '001-network.bicep' = {
     vnetAddressPrefix: vnetAddressPrefix
     vnetName: vnetName
     vnetNewOrExisting: vnetNewOrExisting
-    onPremRange: onPremRange
       }
 }
 
@@ -304,6 +311,7 @@ module fortiWebTemplate '002-fortiweb.bicep' = if (deployFortiWeb == 'yes') {
     instanceType: instanceType
     location: location
     publicIPName: publicIPName
+    publicIPNewOrExistingOrNone: publicIPNewOrExistingOrNone
     publicIPResourceGroup: publicIPResourceGroup
     publicIPType: publicIPType
     subnet1Name: subnet1Name
