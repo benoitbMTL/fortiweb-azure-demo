@@ -20,17 +20,12 @@ param vnetNewOrExisting string
 param vnetName string
 param vnetResourceGroup string
 param subnet1Name string 
-param subnet1Prefix string
 param subnet1StartAddress string
 param subnet2Name string
-param subnet2Prefix string
-param subnet2StartAddress string
 param fwbserialConsole string
 @secure()
 param location string
 param fortinetTags object
-param vnetAddressPrefix string
-param subnet3StartAddress string
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                                                 //
@@ -65,20 +60,10 @@ var serialConsoleStorageAccountType = 'Standard_LRS'
 var serialConsoleEnabled = ((fwbserialConsole == 'yes') ? true : false)
 var var_publicIPName = ((publicIPName == '') ? '${deploymentPrefix}-FWB-PublicIP' : publicIPName)
 var publicIPId = ((publicIPNewOrExistingOrNone == 'new') ? publicIPName_resource.id : resourceId(publicIPResourceGroup, 'Microsoft.Network/publicIPAddresses', var_publicIPName))
-var publicIPAddressId = {
-  id: publicIPId
 var var_NSGName = '${deploymentPrefix}-${uniqueString(resourceGroup().id)}-NSG'
 var NSGId = NSGName.id
-var sn1IPArray = split(subnet1Prefix, '.')
-var sn1IPArray2 = string(int(sn1IPArray[2]))
-var sn1IPArray1 = string(int(sn1IPArray[1]))
-var sn1IPArray0 = string(int(sn1IPArray[0]))
-var sn1IPStartAddress = split(subnet1StartAddress, '.')
-var sn1IPfwb = '${sn1IPArray0}.${sn1IPArray1}.${sn1IPArray2}.${int(sn1IPStartAddress[3])}'
-var sn2IPArray2 = string((int(sn2IPArray2nd[0]) + 1))
-var sn2IPArray2nd = split(sn2IPArray2ndString, '/')
-var sn2IPArray2ndString = string(sn2IPArray[3])
-var sn2IPfwb = '${sn2IPArray0}.${sn2IPArray1}.${sn2IPArray2}.${(int(sn2IPStartAddress[3]) + 1)}'
+var sn1IPfwb = '10.0.1.11'
+var sn2IPfwb = '10.0.2.11'
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -265,30 +250,6 @@ resource fwbNic2Name 'Microsoft.Network/networkInterfaces@2022-05-01' = {
         properties: {
           privateIPAllocationMethod: 'Static'
           privateIPAddress: sn2IPfwb
-          subnet: {
-            id: subnet2Id
-          }
-        }
-      }
-    ]
-    enableIPForwarding: false
-    enableAcceleratedNetworking: acceleratedNetworking
-  }
-}
-
-resource fwbBNic2Name 'Microsoft.Network/networkInterfaces@2022-05-01' = {
-  tags: {
-    provider: toUpper(fortinetTags.provider)
-  }
-  name: var_fwbBNic2Name
-  location: location
-  properties: {
-    ipConfigurations: [
-      {
-        name: 'ipconfig1'
-        properties: {
-          privateIPAllocationMethod: 'Static'
-          privateIPAddress: sn2IPfwbB
           subnet: {
             id: subnet2Id
           }
