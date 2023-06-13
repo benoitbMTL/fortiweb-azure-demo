@@ -280,13 +280,11 @@ module networkTemplate '001-network.bicep' = {
   name: 'networkDeployment'
   params: {
     deploymentPrefix: deploymentPrefix
-    fortinetTags: fortinetTags   
     location: location
     subnet1Name: subnet1Name
     subnet1Prefix: subnet1Prefix
     subnet2Name: subnet2Name
     subnet2Prefix: subnet2Prefix
-    subnet2StartAddress: subnet2StartAddress
     subnet3Name: subnet3Name
     subnet3Prefix: subnet3Prefix
     vnetAddressPrefix: vnetAddressPrefix
@@ -298,7 +296,6 @@ module networkTemplate '001-network.bicep' = {
 module fortiWebTemplate '002-fortiweb.bicep' = if (deployFortiWeb == 'yes') {
   name: 'fortiwebDeployment'
   params: {
-    vnetAddressPrefix: vnetAddressPrefix
     adminPassword: adminPassword
     adminUsername: adminUsername
     deploymentPrefix: deploymentPrefix
@@ -315,11 +312,8 @@ module fortiWebTemplate '002-fortiweb.bicep' = if (deployFortiWeb == 'yes') {
     publicIPResourceGroup: publicIPResourceGroup
     publicIPType: publicIPType
     subnet1Name: subnet1Name
-    subnet1Prefix: subnet1Prefix
     subnet1StartAddress: subnet1StartAddress
     subnet2Name: subnet2Name
-    subnet2Prefix:subnet2Prefix 
-    subnet2StartAddress: subnet2StartAddress
     vnetName:vnetName 
     vnetNewOrExisting: vnetNewOrExisting
     vnetResourceGroup: vnetResourceGroup
@@ -362,9 +356,3 @@ module dvwaTemplate '003-dvwa.bicep' = if (deployDVWA == 'yes') {
 
 output dvwaHTTP string = 'http://${fortiWebTemplate.outputs.fortiWebPublicIP}:80'
 output fortiWebManagementConsole string = 'https://${fortiWebTemplate.outputs.fortiWebPublicIP}:40030'
-output networkTemplateOutputs object = {
-  value: networkTemplate.outputs
-}
-output fortiWebTemplateOutputs object = {
-  value: fortiWebTemplate.outputs
-}
