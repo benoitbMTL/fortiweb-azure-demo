@@ -7,6 +7,7 @@ param adminUsername string
 @secure()
 param adminPassword string
 param deploymentPrefix string
+param fortiWebVmName string
 param fortiWebImageSKU string
 param fortiWebImageVersion string
 param fortiWebAdditionalCustomData string
@@ -19,8 +20,10 @@ param publicIPType string
 param vnetNewOrExisting string
 param vnetName string
 param vnetResourceGroup string
-param subnet1Name string 
+param subnet1StartAddress string
+param subnet2StartAddress string
 param subnet3StartAddress string
+param subnet1Name string 
 param subnet2Name string
 param fwbserialConsole string
 @secure()
@@ -32,6 +35,7 @@ param location string
 //                                                                                                                                 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+var var_fwbVmName = fortiWebVmName
 var imagePublisher = 'fortinet'
 var imageOffer = 'fortinet_fortiweb-vm_v5'
 var var_vnetName = ((vnetName == '') ? '${deploymentPrefix}-VNET' : vnetName)
@@ -43,13 +47,6 @@ var fwbCustomDataCombined = {
   'cloud-initd' : 'enable'
   'usr-cli': fwbCustomDataBody
   }
-// var var_fwbVmName = '${deploymentPrefix}-FWB'
-
-//////////////////////////
-// FortiWeb VM Name
-var var_fwbVmName = 'fwb01'
-//////////////////////////
-
 var fwbCustomDataPreconfig = '${fwbCustomDataVIP}${fwbServerPool}${letsEncrypt}${bulkPoCConfig}'
 var fwbCustomDataVIP = '\nconfig system vip\n edit "DVWA_VIP"\n set vip ${reference(publicIPId).ipAddress}/32\n set interface port1\n next\n end\n'
 var fwbServerPool = '\nconfig server-policy server-pool\n edit "DVWA_POOL"\n config pserver-list\n edit 1\n set ip ${subnet3StartAddress}\n next\n end\n next\n end\n'
@@ -67,12 +64,9 @@ var var_publicIPName = ((publicIPName == '') ? '${deploymentPrefix}-FWB-PublicIP
 var publicIPId = ((publicIPNewOrExistingOrNone == 'new') ? publicIPName_resource.id : resourceId(publicIPResourceGroup, 'Microsoft.Network/publicIPAddresses', var_publicIPName))
 var var_NSGName = '${deploymentPrefix}-${uniqueString(resourceGroup().id)}-NSG'
 var NSGId = NSGName.id
+var sn1IPfwb = subnet1StartAddress
+var sn2IPfwb = subnet2StartAddress
 
-//////////////////////////
-// FortiWeb Private IPs
-var sn1IPfwb = '10.0.1.10'
-var sn2IPfwb = '10.0.2.10'
-//////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                                                 //

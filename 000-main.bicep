@@ -111,6 +111,9 @@ param subnet3StartAddress string = '10.0.3.10'
 //                                                                                                                                 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+@description('FortiWeb VM Name')
+param fortiWebVmName string = 'fwb01'
+
 @description('Identifies whether to to use PAYG or BYOL license model')
 @allowed([
   'fortinet_fw-vm'
@@ -274,6 +277,7 @@ module networkTemplate '001-network.bicep' = {
 module fortiWebTemplate '002-fortiweb.bicep' = if (deployFortiWeb == 'yes') {
   name: 'fortiwebDeployment'
   params: {
+    fortiWebVmName: fortiWebVmName
     adminPassword: adminPassword
     adminUsername: adminUsername
     deploymentPrefix: deploymentPrefix
@@ -290,6 +294,9 @@ module fortiWebTemplate '002-fortiweb.bicep' = if (deployFortiWeb == 'yes') {
     publicIPType: publicIPType
     subnet1Name: subnet1Name
     subnet2Name: subnet2Name
+    subnet1StartAddress: subnet1StartAddress
+    subnet2StartAddress: subnet2StartAddress
+    subnet3StartAddress: subnet3StartAddress
     vnetName:vnetName 
     vnetNewOrExisting: vnetNewOrExisting
     vnetResourceGroup: vnetResourceGroup
