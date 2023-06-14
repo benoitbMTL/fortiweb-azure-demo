@@ -216,6 +216,9 @@ resource fwbNic1Name 'Microsoft.Network/networkInterfaces@2022-05-01' = {
         properties: {
           privateIPAddress: sn1IPfwb
           privateIPAllocationMethod: 'Static'
+          publicIPAddress: {
+            id: publicIPId
+          }
           subnet: {
             id: subnet1Id
           }
