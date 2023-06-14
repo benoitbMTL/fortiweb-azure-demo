@@ -20,12 +20,11 @@ param vnetNewOrExisting string
 param vnetName string
 param vnetResourceGroup string
 param subnet1Name string 
-param subnet1StartAddress string
+param subnet3StartAddress string
 param subnet2Name string
 param fwbserialConsole string
 @secure()
 param location string
-param fortinetTags object
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                                                 //
@@ -38,16 +37,22 @@ var imageOffer = 'fortinet_fortiweb-vm_v5'
 var var_vnetName = ((vnetName == '') ? '${deploymentPrefix}-VNET' : vnetName)
 var subnet1Id = ((vnetNewOrExisting == 'new') ? resourceId('Microsoft.Network/virtualNetworks/subnets', var_vnetName, subnet1Name) : resourceId(vnetResourceGroup, 'Microsoft.Network/virtualNetworks/subnets', var_vnetName, subnet1Name))
 var subnet2Id = ((vnetNewOrExisting == 'new') ? resourceId('Microsoft.Network/virtualNetworks/subnets', var_vnetName, subnet2Name) : resourceId(vnetResourceGroup, 'Microsoft.Network/virtualNetworks/subnets', var_vnetName, subnet2Name))
-var fwbGlobalDataBody = 'config system settings\n set enable-file-upload enable\n end\nconfig system admin\nedit admin\nset password Q1w2e34567890--\nend\n'
+var fwbGlobalDataBody = 'config system settings\n set enable-file-upload enable\n end\nconfig system admin\nedit admin\nset password iGbNBNujX55oCVh4--\nend\n'
 var fwbCustomDataBody = '${fwbGlobalDataBody}${fwbCustomDataPreconfig}${fortiWebAdditionalCustomData}\n'
 var fwbCustomDataCombined = { 
   'cloud-initd' : 'enable'
   'usr-cli': fwbCustomDataBody
   }
-var var_fwbVmName = '${deploymentPrefix}-FWB'
+// var var_fwbVmName = '${deploymentPrefix}-FWB'
+
+//////////////////////////
+// FortiWeb VM Name
+var var_fwbVmName = 'fwb01'
+//////////////////////////
+
 var fwbCustomDataPreconfig = '${fwbCustomDataVIP}${fwbServerPool}${letsEncrypt}${bulkPoCConfig}'
 var fwbCustomDataVIP = '\nconfig system vip\n edit "DVWA_VIP"\n set vip ${reference(publicIPId).ipAddress}/32\n set interface port1\n next\n end\n'
-var fwbServerPool = '\nconfig server-policy server-pool\n edit "DVWA_POOL"\n config pserver-list\n edit 1\n set ip ${subnet1StartAddress}\n next\n end\n next\n end\n'
+var fwbServerPool = '\nconfig server-policy server-pool\n edit "DVWA_POOL"\n config pserver-list\n edit 1\n set ip ${subnet3StartAddress}\n next\n end\n next\n end\n'
 var letsEncrypt = '\nconfig system certificate letsencrypt\nedit "DVWA_LE_CERTIFICATE"\nset domain ${deploymentPrefix}.${location}.cloudapp.azure.com\nset validation-method TLS-ALPN\nnext\nend\n'
 var bulkPoCConfig = loadTextContent('004-fortiwebConfig.txt')
 var fwbCustomData = base64(string(fwbCustomDataCombined))
@@ -62,9 +67,12 @@ var var_publicIPName = ((publicIPName == '') ? '${deploymentPrefix}-FWB-PublicIP
 var publicIPId = ((publicIPNewOrExistingOrNone == 'new') ? publicIPName_resource.id : resourceId(publicIPResourceGroup, 'Microsoft.Network/publicIPAddresses', var_publicIPName))
 var var_NSGName = '${deploymentPrefix}-${uniqueString(resourceGroup().id)}-NSG'
 var NSGId = NSGName.id
-var sn1IPfwb = '10.0.1.11'
-var sn2IPfwb = '10.0.2.11'
 
+//////////////////////////
+// FortiWeb Private IPs
+var sn1IPfwb = '10.0.1.10'
+var sn2IPfwb = '10.0.2.10'
+//////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                                                 //
@@ -82,9 +90,6 @@ resource serialConsoleStorageAccountName 'Microsoft.Storage/storageAccounts@2021
 }
 
 resource NSGName 'Microsoft.Network/networkSecurityGroups@2022-05-01' = {
-  tags: {
-    provider: toUpper(fortinetTags.provider)
-  }
   name: var_NSGName
   location: location
   properties: {
@@ -192,9 +197,6 @@ resource NSGName 'Microsoft.Network/networkSecurityGroups@2022-05-01' = {
 }
 
 resource publicIPName_resource 'Microsoft.Network/publicIPAddresses@2022-05-01' = if (publicIPNewOrExistingOrNone == 'new') {
-  tags: {
-    provider: toUpper(fortinetTags.provider)
-  }
   name: var_publicIPName
   location: location
   sku: {
@@ -211,9 +213,6 @@ resource publicIPName_resource 'Microsoft.Network/publicIPAddresses@2022-05-01' 
 
 
 resource fwbNic1Name 'Microsoft.Network/networkInterfaces@2022-05-01' = {
-  tags: {
-    provider: toUpper(fortinetTags.provider)
-  }
   name: var_fwbNic1Name
   location: location
   properties: {
@@ -238,9 +237,6 @@ resource fwbNic1Name 'Microsoft.Network/networkInterfaces@2022-05-01' = {
 }
 
 resource fwbNic2Name 'Microsoft.Network/networkInterfaces@2022-05-01' = {
-  tags: {
-    provider: toUpper(fortinetTags.provider)
-  }
   name: var_fwbNic2Name
   location: location
   properties: {
@@ -262,9 +258,6 @@ resource fwbNic2Name 'Microsoft.Network/networkInterfaces@2022-05-01' = {
 }
 
 resource fwbVmName 'Microsoft.Compute/virtualMachines@2022-08-01' = {
-  tags: {
-    provider: toUpper(fortinetTags.provider)
-  }
   name: var_fwbVmName
   location: location
   identity: {

@@ -4,7 +4,7 @@
 //                                                                                                                                 //
 //  Deployment Commands:                                                                                                           //
 //  az group create --location <location> --name <resourceGroupName>                                                               //
-//  az deployment group create --name <deploymentName> --resource-group <resourceGroupName> --template-file main.bicep             //
+//  az deployment group create --name <deploymentName> --resource-group <resourceGroupName> --template-file 000-main.bicep         //
 //  az deployment group show -g <resourceGroupName> -n <deploymentName> --query properties.outputs                                 //
 //                                                                                                                                 //
 //                                                                                                                                 //
@@ -19,40 +19,32 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @description ('Do you want to deploy a FortiWeb as a part of this Template (Y/N)')
-@allowed([
-  'yes'
-  'no'
-])
 param deployFortiWeb string = 'yes'
 
 @description ('Do you want to deploy a DVWA Instance as a part of this Template (Y/N)')
-@allowed([
-  'yes'
-  'no'
-])
 param deployDVWA string = 'yes'
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                                                 //
-//  The Following Parameters will be asked in the form of a prompt when running main.bicep via AZ CLI (az deployment group create) //
-//                                                                                                                                 //
+//  The Following Parameters will be asked in the form of a prompt                                                                 //
+//  when running main.bicep via AZ CLI (az deployment group create)                                                                //
 //                                                                                                                                 //
 //   NOTES:                                                                                                                        // 
 //   1). The Deployment Prefix will be used throughout the deployment                                                              //
-//   2). The same Username and Password will be applied to the FortiWeb(s) and DVWA appliance                                      //
+//   2). The same Username and Password will be applied to FortiWeb and DVWA VMs                                                   //
 //       and can be changed post-deployment                                                                                        //
 //                                                                                                                                 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @description('Username for the FortiWeb VM')
-param adminUsername string
+param adminUsername string = 'benoitb'
 
 @description('Password for the FortiWeb VM')
 @secure()
 param adminPassword string
 
 @description('Naming prefix for all deployed resources.')
-param deploymentPrefix string
+param deploymentPrefix string = 'fwb'
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                                                 //
@@ -64,12 +56,6 @@ param deploymentPrefix string
 
 param location string = resourceGroup().location
 
-param fortinetTags object = {
-  publisher: 'Fortinet'
-  template: 'Canadian Fortinet Architecture Blueprint'
-  provider: '6EB3B02F-50E5-4A3E-8CB8-2E12925831AP'
-}
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                                                 //
 //                                                                                                                                 //
@@ -79,17 +65,13 @@ param fortinetTags object = {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @description('Identify whether to use a new or existing vnet')
-@allowed([
-  'new'
-  'existing'
-])
 param vnetNewOrExisting string = 'new'
 
 @description('Name of the Azure virtual network, required if utilizing and existing VNET. If no name is provided the default name will be the Resource Group Name as the Prefix and \'-VNET\' as the suffix')
-param vnetName string = ''
+param vnetName string = 'fwb-vnet-demo'
 
 @description('Resource Group containing the existing virtual network, leave blank if a new VNET is being utilized')
-param vnetResourceGroup string = 'fwb-demo'
+param vnetResourceGroup string = 'fwb-cse-demo'
 
 @description('Virtual Network Address prefix')
 param vnetAddressPrefix string = '10.0.0.0/16'
@@ -109,7 +91,7 @@ param subnet2Name string = 'backend'
 @description('Subnet 2 Prefix')
 param subnet2Prefix string = '10.0.2.0/24'
 
-@description('Subnet 2 start address, 3 consecutive private IPs are required')
+@description('Subnet 2 start address, 2 consecutive private IPs are required')
 param subnet2StartAddress string = '10.0.2.10'
 
 @description('Subnet 3 Name')
@@ -129,7 +111,7 @@ param subnet3StartAddress string = '10.0.3.10'
 //                                                                                                                                 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-@description('Identifies whether to to use PAYG (on demand licensing) or BYOL license model (where license is purchased separately)')
+@description('Identifies whether to to use PAYG or BYOL license model')
 @allowed([
   'fortinet_fw-vm'
   'fortinet_fw-vm_payg_v2'
@@ -233,10 +215,10 @@ param fortiWebAdditionalCustomData string = ''
 param publicIPNewOrExistingOrNone string = 'new'
 
 @description('Name of Public IP address element.')
-param publicIPName string = 'FWBPublicIP'
+param publicIPName string = 'fwb-demo-public-ip'
 
 @description('Resource group to which the Public IP belongs.')
-param publicIPResourceGroup string = 'fwb-demo'
+param publicIPResourceGroup string = 'fwb-cse-demo'
 
 @description('Type of public IP address')
 @allowed([
@@ -261,10 +243,6 @@ param fwbserialConsole string = 'yes'
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @description('Enable Serial Console on the DVWA')
-@allowed([
-  'yes'
-  'no'
-])
 param dvwaserialConsole string = 'yes'
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -299,7 +277,6 @@ module fortiWebTemplate '002-fortiweb.bicep' = if (deployFortiWeb == 'yes') {
     adminPassword: adminPassword
     adminUsername: adminUsername
     deploymentPrefix: deploymentPrefix
-    fortinetTags: fortinetTags
     fortiWebAdditionalCustomData:fortiWebAdditionalCustomData
     fortiWebImageSKU: fortiWebImageSKU
     fortiWebImageVersion: fortiWebImageVersion
@@ -314,6 +291,7 @@ module fortiWebTemplate '002-fortiweb.bicep' = if (deployFortiWeb == 'yes') {
     subnet1Name: subnet1Name
     subnet1StartAddress: subnet1StartAddress
     subnet2Name: subnet2Name
+    subnet2StartAddress: subnet2StartAddress
     vnetName:vnetName 
     vnetNewOrExisting: vnetNewOrExisting
     vnetResourceGroup: vnetResourceGroup
@@ -354,5 +332,5 @@ module dvwaTemplate '003-dvwa.bicep' = if (deployDVWA == 'yes') {
 //                                                                                                                                 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+output fortiWebManagementConsole string = 'https://${fortiWebTemplate.outputs.fortiWebPublicIP}:8443'
 output dvwaHTTP string = 'http://${fortiWebTemplate.outputs.fortiWebPublicIP}:80'
-output fortiWebManagementConsole string = 'https://${fortiWebTemplate.outputs.fortiWebPublicIP}:40030'

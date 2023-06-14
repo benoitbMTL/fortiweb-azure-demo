@@ -22,7 +22,9 @@ param dvwaserialConsole string
 //                                                                                                                                 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-var vmName = '${deploymentPrefix}-DVWA'
+//var vmName = '${deploymentPrefix}-DVWA'
+var vmName = 'dvwa'
+
 var vmNicName = '${deploymentPrefix}-DVWA-NIC'
 var vmNicId = ubuntuNic.id
 var var_vnetName = ((vnetName == '') ? '${deploymentPrefix}-VNET' : vnetName)
@@ -39,7 +41,7 @@ var sn3IPUbuntu = '${sn3IPArray0}.${sn3IPArray1}.${sn3IPArray2}.${int(sn3IPStart
 var vmCustomDataBody = '''
 #!/bin/bash
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
-#Wait for the repo 
+# Wait for the repo 
 echo "Waiting for repo to be reacheable"
 curl --retry 20 -s -o /dev/null "https://download.docker.com/linux/centos/docker-ce.repo"
 echo "Adding repo"
@@ -49,15 +51,15 @@ do
    sleep 2
 done
 dnf remove podman buildah
-echo "Installing docker support"
-until dnf -y install docker-ce docker-ce-cli containerd.io
+echo "Installing docker support and git"
+until dnf -y install docker-ce docker-ce-cli containerd.io git
 do
-    dnf -y install docker-ce docker-ce-cli containerd.io
+    dnf -y install docker-ce docker-ce-cli containerd.io git
     sleep 2
 done
 systemctl start docker.service
 systemctl enable docker.service
-# Wait for Internet access through the FGT by testing the docker registry
+# Wait for Internet access through by testing the docker registry
 echo "Waiting for docker registry to be reacheable"
 curl --retry 20 -s -o /dev/null "https://index.docker.io/v2/"
 echo "installing dvwa docker container"
@@ -66,6 +68,18 @@ do
     docker pull vulnerables/web-dvwa
     sleep 2
 done
+until sudo docker run -d --restart unless-stopped -p 1000:80 benoitbmtl/fwb
+do 
+    docker pull benoitbmtl/fwb
+    sleep2
+done
+until sudo docker build -t my-web-app .
+do
+  sudo git clone https://github.com/benoitbMTL/web-app.git
+  sleep 2  
+done
+cd web-app
+docker run --restart unless-stopped -p 3000:3000 -d my-web-app
 '''
 
 var vmCustomData = base64(vmCustomDataBody)
