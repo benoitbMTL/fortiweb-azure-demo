@@ -289,9 +289,7 @@ module fortiWebTemplate '002-fortiweb.bicep' = if (deployFortiWeb == 'yes') {
     publicIPResourceGroup: publicIPResourceGroup
     publicIPType: publicIPType
     subnet1Name: subnet1Name
-    subnet1StartAddress: subnet1StartAddress
     subnet2Name: subnet2Name
-    subnet2StartAddress: subnet2StartAddress
     vnetName:vnetName 
     vnetNewOrExisting: vnetNewOrExisting
     vnetResourceGroup: vnetResourceGroup
