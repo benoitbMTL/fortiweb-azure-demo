@@ -68,18 +68,28 @@ do
     docker pull vulnerables/web-dvwa
     sleep 2
 done
-until sudo docker run -d --restart unless-stopped -p 1000:80 benoitbmtl/fwb
+echo "installing fwb docker container"
+until docker run -d --restart unless-stopped -p 1000:80 benoitbmtl/fwb
 do 
     docker pull benoitbmtl/fwb
     sleep2
 done
-until sudo docker build -t my-web-app .
+until echo "git clone https://github.com/benoitbMTL/web-app.git"
 do
-  sudo git clone https://github.com/benoitbMTL/web-app.git
+  git clone https://github.com/benoitbMTL/web-app.git
   sleep 2  
 done
 cd web-app
-docker run --restart unless-stopped -p 3000:3000 -d my-web-app
+until echo "docker build -t my-web-app ."
+do
+  sudo docker build -t my-web-app .
+  sleep 2  
+done
+until echo "docker build -t my-web-app ."
+do
+  docker run --restart unless-stopped -p 3000:3000 -d my-web-app
+  sleep 2  
+done
 '''
 
 var vmCustomData = base64(vmCustomDataBody)
