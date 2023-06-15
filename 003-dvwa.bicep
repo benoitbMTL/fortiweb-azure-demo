@@ -79,13 +79,16 @@ do
   git clone https://github.com/benoitbMTL/web-app.git
   sleep 2  
 done
-cd web-app
+# Get the directory of the script
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Change to the directory
+cd "$DIR/web-app"
 until echo "docker build -t my-web-app ."
 do
   sudo docker build -t my-web-app .
   sleep 2  
 done
-until echo "docker build -t my-web-app ."
+until echo "docker run --restart unless-stopped -p 3000:3000 -d my-web-app"
 do
   docker run --restart unless-stopped -p 3000:3000 -d my-web-app
   sleep 2  
