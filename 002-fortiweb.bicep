@@ -25,7 +25,7 @@ param subnet2StartAddress string
 param subnet3StartAddress string
 param subnet1Name string 
 param subnet2Name string
-param fwbserialConsole string
+param fwbSerialConsole string
 @secure()
 param location string
 
@@ -59,7 +59,7 @@ var var_fwbNic2Name = '${var_fwbVmName}-Nic2'
 var fwbNic2Id = fwbNic2Name.id
 var var_serialConsoleStorageAccountName = 'fwbsc${uniqueString(resourceGroup().id)}'
 var serialConsoleStorageAccountType = 'Standard_LRS'
-var serialConsoleEnabled = ((fwbserialConsole == 'yes') ? true : false)
+var serialConsoleEnabled = ((fwbSerialConsole == 'yes') ? true : false)
 var var_publicIPName = ((publicIPName == '') ? '${deploymentPrefix}-FWB-PublicIP' : publicIPName)
 var publicIPId = ((publicIPNewOrExistingOrNone == 'new') ? publicIPName_resource.id : resourceId(publicIPResourceGroup, 'Microsoft.Network/publicIPAddresses', var_publicIPName))
 var var_NSGName = '${deploymentPrefix}-${uniqueString(resourceGroup().id)}-NSG'
@@ -74,7 +74,7 @@ var sn2IPfwb = subnet2StartAddress
 //                                                                                                                                 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-resource serialConsoleStorageAccountName 'Microsoft.Storage/storageAccounts@2021-02-01' = if (fwbserialConsole == 'yes') {
+resource serialConsoleStorageAccountName 'Microsoft.Storage/storageAccounts@2021-02-01' = if (fwbSerialConsole == 'yes') {
   name: var_serialConsoleStorageAccountName
   location: location
   kind: 'Storage'
@@ -312,7 +312,7 @@ resource fwbVmName 'Microsoft.Compute/virtualMachines@2022-08-01' = {
     diagnosticsProfile: {
       bootDiagnostics: {
         enabled: serialConsoleEnabled
-        storageUri: ((fwbserialConsole == 'yes') ? reference(var_serialConsoleStorageAccountName, '2021-08-01').primaryEndpoints.blob : null)
+        storageUri: ((fwbSerialConsole == 'yes') ? reference(var_serialConsoleStorageAccountName, '2021-08-01').primaryEndpoints.blob : null)
       }
     }
   }

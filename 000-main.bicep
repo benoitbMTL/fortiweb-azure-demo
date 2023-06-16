@@ -235,7 +235,7 @@ param publicIPType string = 'Static'
   'yes'
   'no'
 ])
-param fwbserialConsole string = 'yes'
+param fwbSerialConsole string = 'yes'
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                                                 //
@@ -284,7 +284,7 @@ module fortiWebTemplate '002-fortiweb.bicep' = if (deployFortiWeb == 'yes') {
     fortiWebAdditionalCustomData:fortiWebAdditionalCustomData
     fortiWebImageSKU: fortiWebImageSKU
     fortiWebImageVersion: fortiWebImageVersion
-    fwbserialConsole: fwbserialConsole
+    fwbSerialConsole: fwbSerialConsole
     acceleratedNetworking: acceleratedNetworking
     instanceType: instanceType
     location: location
