@@ -21,8 +21,8 @@
 @description ('Do you want to deploy a FortiWeb as a part of this Template (Y/N)')
 param deployFortiWeb string = 'yes'
 
-@description ('Do you want to deploy a DVWA Instance as a part of this Template (Y/N)')
-param deployDVWA string = 'yes'
+@description ('Do you want to deploy a ubuntu Instance as a part of this Template (Y/N)')
+param deployUbuntu string = 'yes'
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                                                 //
@@ -31,7 +31,7 @@ param deployDVWA string = 'yes'
 //                                                                                                                                 //
 //   NOTES:                                                                                                                        // 
 //   1). The Deployment Prefix will be used throughout the deployment                                                              //
-//   2). The same Username and Password will be applied to FortiWeb and DVWA VMs                                                   //
+//   2). The same Username and Password will be applied to FortiWeb and Ubuntu VMs                                                   //
 //       and can be changed post-deployment                                                                                        //
 //                                                                                                                                 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -240,13 +240,13 @@ param fwbserialConsole string = 'yes'
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                                                 //
 //                                                                                                                                 //
-//  The Following Parameters are STATIC and their values will be pushed down to the DVWA Template                                  //
+//  The Following Parameters are STATIC and their values will be pushed down to the ubuntu Template                                  //
 //                                                                                                                                 //
 //                                                                                                                                 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-@description('Enable Serial Console on the DVWA')
-param dvwaserialConsole string = 'yes'
+@description('Enable Serial Console on the Ubuntu')
+param ubuntuSerialConsole string = 'yes'
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                                                 //
@@ -306,8 +306,8 @@ module fortiWebTemplate '002-fortiweb.bicep' = if (deployFortiWeb == 'yes') {
   ]
 }
 
-module dvwaTemplate '003-dvwa.bicep' = if (deployDVWA == 'yes') {
-  name: 'dvwaDeployment'
+module ubuntuTemplate '003-ubuntu.bicep' = if (deployUbuntu == 'yes') {
+  name: 'ubuntuDeployment'
   params: {
     adminPassword: adminPassword
     adminUsername:  adminUsername
@@ -319,7 +319,7 @@ module dvwaTemplate '003-dvwa.bicep' = if (deployDVWA == 'yes') {
     vnetName: vnetName
     vnetNewOrExisting: vnetNewOrExisting
     vnetResourceGroup: vnetResourceGroup
-    dvwaserialConsole: dvwaserialConsole
+    ubuntuSerialConsole: ubuntuSerialConsole
   }
   dependsOn: [
     fortiWebTemplate
@@ -338,4 +338,4 @@ module dvwaTemplate '003-dvwa.bicep' = if (deployDVWA == 'yes') {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 output fortiWebManagementConsole string = 'https://${fortiWebTemplate.outputs.fortiWebPublicIP}:8443'
-output dvwaHTTP string = 'http://${fortiWebTemplate.outputs.fortiWebPublicIP}:80'
+output ubuntuHTTP string = 'http://${fortiWebTemplate.outputs.fortiWebPublicIP}:80'

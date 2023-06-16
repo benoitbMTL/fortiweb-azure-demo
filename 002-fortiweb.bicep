@@ -49,7 +49,7 @@ var fwbCustomDataCombined = {
   }
 var fwbCustomDataPreconfig = '${fwbCustomDataVIP}${fwbServerPool}${letsEncrypt}${bulkPoCConfig}'
 var fwbCustomDataVIP = '\nconfig system vip\n edit "DVWA_VIP"\n set vip ${reference(publicIPId).ipAddress}/32\n set interface port1\n next\n end\n'
-var fwbServerPool = '\nconfig server-policy server-pool\n edit "DVWA_POOL"\n config pserver-list\n edit 1\n set ip ${subnet3StartAddress}\n next\n end\n next\n end\n'
+var fwbServerPool = '\nconfig server-policy server-pool\n edit "DVWA_POOL"\n config pserver-list\n edit 1\n set ip ${subnet3StartAddress}\n \n set port 3000\n next\n end\n next\n end\n'
 var letsEncrypt = '\nconfig system certificate letsencrypt\nedit "DVWA_LE_CERTIFICATE"\nset domain ${deploymentPrefix}.${location}.cloudapp.azure.com\nset validation-method TLS-ALPN\nnext\nend\n'
 var bulkPoCConfig = loadTextContent('004-fortiwebConfig.txt')
 var fwbCustomData = base64(string(fwbCustomDataCombined))
