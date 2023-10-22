@@ -41,7 +41,7 @@ param adminUsername string = 'benoitb'
 
 @description('Password for the FortiWeb VM')
 @secure()
-param adminPassword string
+param adminPassword string = 'FortiAzure123!'
 
 @description('Naming prefix for all deployed resources.')
 param deploymentPrefix string = 'fwb'
@@ -119,7 +119,7 @@ param fortiWebVmName string = 'fwb01'
   'fortinet_fw-vm'
   'fortinet_fw-vm_payg_v2'
 ])
-param fortiWebImageSKU string = 'fortinet_fw-vm'
+param fortiWebImageSKU string = 'fortinet_fw-vm_payg_v2'
 
 @description('FortiWeb versions available in the Azure Marketplace. Additional version can be downloaded via https://support.fortinet.com/')
 @allowed([
@@ -127,6 +127,7 @@ param fortiWebImageSKU string = 'fortinet_fw-vm'
   '7.0.0'
   '7.0.3'
   '7.2.0'
+  '7.4.0'
   'latest'
 ])
 param fortiWebImageVersion string = 'latest'
