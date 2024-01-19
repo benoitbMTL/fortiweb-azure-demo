@@ -41,10 +41,10 @@ param adminUsername string = 'benoitb'
 
 @description('Password for the FortiWeb VM')
 @secure()
-param adminPassword string = 'FortiAzure123!'
+param adminPassword string
 
 @description('Naming prefix for all deployed resources.')
-param deploymentPrefix string = 'fwb'
+param deploymentPrefix string = 'ABP'
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                                                 //
@@ -65,13 +65,17 @@ param location string = resourceGroup().location
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @description('Identify whether to use a new or existing vnet')
+@allowed([
+  'new'
+  'existing'
+])
 param vnetNewOrExisting string = 'new'
 
 @description('Name of the Azure virtual network, required if utilizing and existing VNET. If no name is provided the default name will be the Resource Group Name as the Prefix and \'-VNET\' as the suffix')
-param vnetName string = 'fwb-vnet-demo'
+param vnetName string = ''
 
 @description('Resource Group containing the existing virtual network, leave blank if a new VNET is being utilized')
-param vnetResourceGroup string = 'fwb-cse-demo'
+param vnetResourceGroup string = ''
 
 @description('Virtual Network Address prefix')
 param vnetAddressPrefix string = '10.0.0.0/16'
@@ -112,14 +116,14 @@ param subnet3StartAddress string = '10.0.3.10'
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 @description('FortiWeb VM Name')
-param fortiWebVmName string = 'fwb01'
+param fortiWebVmName string = 'fwbABP'
 
 @description('Identifies whether to to use PAYG or BYOL license model')
 @allowed([
   'fortinet_fw-vm'
   'fortinet_fw-vm_payg_v2'
 ])
-param fortiWebImageSKU string = 'fortinet_fw-vm_payg_v2'
+param fortiWebImageSKU string = 'fortinet_fw-vm'
 
 @description('FortiWeb versions available in the Azure Marketplace. Additional version can be downloaded via https://support.fortinet.com/')
 @allowed([
@@ -198,7 +202,7 @@ param fortiWebImageVersion string = 'latest'
   'Standard_D16ads_v5'
   'Standard_D32ads_v5'
 ])
-param instanceType string = 'Standard_F4s'
+param instanceType string = 'Standard_F2s'
 
 @description('Accelerated Networking enables direct connection between the VM and network card. Only available on 2 CPU F/Fs and 4 CPU D/Dsv2, D/Dsv3, E/Esv3, Fsv2, Lsv2, Ms/Mms and Ms/Mmsv2')
 @allowed([
@@ -208,7 +212,7 @@ param instanceType string = 'Standard_F4s'
 param acceleratedNetworking bool = true
 
 @description('The ARM template provides a basic configuration. Additional configuration can be added here.')
-param fortiWebAdditionalCustomData string = ''
+param fortiWebAdditionalCustomData string = 'config system global\nset timezone 12\nset admintimeout 480\nend\nconfig log traffic-log\nset packet-log enable\nset status enable\nend\n'
 
 @description('Public IP for the FortiWeb VM')
 @allowed([
@@ -219,10 +223,10 @@ param fortiWebAdditionalCustomData string = ''
 param publicIPNewOrExistingOrNone string = 'new'
 
 @description('Name of Public IP address element.')
-param publicIPName string = 'fwb-demo-public-ip'
+param publicIPName string = 'FWBPublicIP'
 
 @description('Resource group to which the Public IP belongs.')
-param publicIPResourceGroup string = 'fwb-cse-demo'
+param publicIPResourceGroup string = ''
 
 @description('Type of public IP address')
 @allowed([
